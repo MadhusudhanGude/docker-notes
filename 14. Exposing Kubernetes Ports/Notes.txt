@@ -1,0 +1,118 @@
+Exposing containers
+
+>> kubectl expose
+    create a service for existing pods
+    A service is a stable address for pod(s)
+    If we want to connect to pod(s), we need a service
+    CoreDNS will allow us to resolve services by name
+
+# Service Types
+
+ClusterIP (default) - 
+    Exposes the Service on an internal IP in the cluster.
+    This type makes the Service only reachable from within the cluster.
+
+NodePort - 
+    Exposes the Service on the same port of each selected Node in the cluster using NAT.
+    Makes a Service accessible from outside the cluster using <NodeIP>:<NodePort>.
+    Superset of ClusterIP.
+
+LoadBalancer - 
+    Creates an external load balancer in the current cloud (if supported) and
+         assigns a fixed, external IP to the Service. 
+    Superset of NodePort.
+
+ExternalName - 
+    Exposes the Service using an arbitrary name 
+        (specified by externalName in the spec) by returning a CNAME record with the name. 
+    No proxy is used. This type requires v1.7 or higher of kube-dns.
+
+>> kubectl get pods -w
+    Get pods with watch command
+
+>> kubectl create deployment httpenv --image=bretfisher/httpenv
+
+>> kubectl scale deployment/httpenv --replicas=5
+
+>> kubectl expose deployment/httpenv --port 8888
+    Exposing a deployment with the port on which the deployment is listening on
+    This is going to create ClusterIP service in front of the deployment
+
+>> kubectl get service
+
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+httpenv      ClusterIP   10.152.183.182   <none>        8888/TCP   59s
+kubernetes   ClusterIP   10.152.183.1     <none>        443/TCP    21h
+
+
+
+Now this newly created ClusterIP service will be only be usable 
+    inside the cluster for nodes and other pods to be able to access it
+
+In case of mac/windows, this is going to be running inside small linux vm
+But in case of linux you can directly use this service to access the deployment
+
+-------------------------
+For linux
+-------------------------
+
+curl http://<CLUSTER-IP>:<port>
+    Example:
+        curl http://10.152.183.182:8888
+
+
+-------------------------
+For windows/mac
+-------------------------
+
+create a pod so that it's running on that cluster to curl
+>> kubectl run --generator run-pod/v1 <pod_name> --rm --it --image <image_name> -- bash
+    --rm                ==>     remove 
+    ==it                ==>     interactive
+    <space>--<space>    ==>     Anythig after -- is the command to run when you execute the containers
+
+    Example:
+        kubectl run --generator run-pod/v1 tmp-shell --rm --it --image bretfisher/netshoot -- bash
+        In bash:
+            curl <Service name>:<port>
+            curl httpenv:8888
+Service name we create will be part of the DNS name
+
+
+# Create NodePort service
+
+>> kubectl get all
+>> kubectl get service
+>> kubectl expose deployment/httpenv --port 8888 --name httpenv-np --type NodePort
+>> kubectl get service
+
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+httpenv      ClusterIP   10.152.183.182   <none>        8888/TCP         18m
+httpenv-np   NodePort    10.152.183.139   <none>        8888:32143/TCP   15s
+              8888:32143/TCP  ==>  <port_inside_the_cluster>:<port_exposed_to_outside_world>
+kubernetes   ClusterIP   10.152.183.1     <none>        443/TCP          22h
+
+>> Now you can access it using 
+    curl localhost:32143
+
+
+# Create LoadBalancer service
+
+>> kubectl get service
+>> kubectl expose deployment/httpenv --port 8888 --name httpenv-lb --type LoadBalancer
+>> kubectl get service
+>> Now you can access it using 
+    curl localhost:8888
+
+    Docker desktop has inbuilt LoadBalancer, 
+        but incase of linux or minicude you don't have access to LoadBalancer by default
+
+
+>> The three service Types are additive, each one creates one above it
+    1. ClusterIP
+    2. NodePort
+    3. LoadBalancer
+
+
+>> kubectl delete service/httpenv-lb service/httpenv service/httpenv-np
+>> kubectl delete deployment/httpenv

@@ -1,0 +1,29 @@
+Image:
+    App binaries and dependencies
+    Meta data about the image and how to run it
+
+
+>> hub.docker.com
+
+>> docker image history <image_name>:<image_tag>
+    docker image history nginx:latest
+    Shows layers of changes made in image
+
+>> When downloading similar docker images from docker hub, it will use the cached image layers
+     and download the required remaining image layers.
+     
+>> When you multiple containers using same image.
+    If you change something in the image from one container
+    It will create use copy on write(COW) mechanism and make those change local to that container
+
+>> To change a docker image tag
+    docker image tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+    Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+
+>> docker login
+>> docker logout
+>> docker image push <image_name>:<image_tag>
+
+
+5. Building Images The Dockerfile Basics
+>> docker build -f some -dockerfile

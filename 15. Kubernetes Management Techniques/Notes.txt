@@ -1,0 +1,78 @@
+Run, Create, Expose comamnds use helper templates called generators
+
+>> kubectl create deployment sample --image nginx --dry-run -o yaml
+    You can output these templates with --dry-run -o yaml
+
+    Output:
+
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+        creationTimestamp: null
+        labels:
+            app: sample
+        name: sample
+        spec:
+        replicas: 1
+        selector:
+            matchLabels:
+            app: sample
+        strategy: {}
+        template:
+            metadata:
+            creationTimestamp: null
+            labels:
+                app: sample
+            spec:
+            containers:
+            - image: nginx
+                name: nginx
+                resources: {}
+        status: {}
+
+>> kubectl create job sample --image nginx --dry-run -o yaml
+    Output:
+        run -o yaml
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+        creationTimestamp: null
+        name: sample
+        spec:
+        template:
+            metadata:
+            creationTimestamp: null
+            spec:
+            containers:
+            - image: nginx
+                name: sample
+                resources: {}
+            restartPolicy: Never
+        status: {}
+
+>> kubectl create deployment test --image nginx
+>> kubectl expose deployment/test --port 80 --dry-run -o yaml
+    Output:
+
+        -run -o yaml
+        apiVersion: v1
+        kind: Service
+        metadata:
+        creationTimestamp: null
+        labels:
+            app: test
+        name: test
+        spec:
+        ports:
+        - port: 80
+            protocol: TCP
+            targetPort: 80
+        selector:
+            app: test
+        status:
+        loadBalancer: {}
+
+>> kubectl delete deployment test
+
+
+>> 

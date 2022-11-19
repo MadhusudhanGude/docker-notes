@@ -1,0 +1,13 @@
+Updating the postgres DB version w/o loosnig the database date
+
+>> docker container run -f --name psql -v psql:/var/lib/postgresql/data postgres:9.6.1
+>> docker container logs -f
+>> docker container stop <previous_container_id>
+> docker volume ls
+    Should show one volume even after terminating the container
+
+>> docker container run -f --name psql2 -v psql:/var/lib/postgresql/data postgres:9.6.2
+    New version docker container but with old volume
+> docker volume ls
+    Should show one volume even after creating the new container
+>> docker container logs <new_container_id>

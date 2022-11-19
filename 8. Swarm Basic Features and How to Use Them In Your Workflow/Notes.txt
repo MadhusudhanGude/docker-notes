@@ -1,0 +1,90 @@
+1. Scaling Out with Overlay Networking
+#######
+Create 3 Node swarm cluster and then execute the below commands in node 1
+#########
+
+>> ... --driver overlay
+    New networking driver, which enables swarm wide bridge network
+    Contaniers across hosts which are on the same network connnect through vlan
+    Intra swarm network
+    Each service can be connected to multiple networks
+
+
+>> docker network create --driver overlay my_network
+    creating overlay network
+
+>> docker service create --name psql --network my_network -e POSTGRES_PASSWORD=pass postgres
+>> docker service ls
+>> docker service ps psql
+    Observe this service started on node1
+
+ID                  NAME                IMAGE               NODE                DESIRED STATE       CURRENT STATE           ERROR               PORTS
+jahletfs55nt        psql.1              postgres:latest     node1               Running             Running 5 seconds ago 
+    
+>> docker container ls
+
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS              PORTS               NAMES
+6ad0355d26df        postgres:latest     "docker-entrypoint.s…"   About a minute ago   Up About a minute   5432/tcp            psql.1.jahletfs55ntnuepd2yvvy1nn
+
+
+>> docker container logs psql.1.jahletfs55ntnuepd2yvvy1nn
+..
+...
+....
+2019-12-07 08:27:36.807 UTC [1] LOG:  database system is ready to accept connections
+
+>> docker service create --name drupal --network my_network -p 80:80 drupal
+Start a new service
+
+>> docker service ps drupal
+    Observe this service started on node2
+
+ID                  NAME                IMAGE               NODE                DESIRED STATE       CURRENT STATE            ERROR               PORTS
+0067lkwidars        drupal.1            drupal:latest       node2               Running             Running 25 seconds ago  
+
+>>
+These twos services, though they are on two different nodes, 
+they can talk to each other using the same overlay network
+Overlay network works as subnet
+
+>> docker service inspect drupal 
+Although it actually runs on single node, it cn stillbe accessible form any of the three nodes
+Because of Routing mesh
+
+##########
+Scaling Routing Mesh
+
+>> Routing Mesh
+    It will load balances swarm services across all the nodes and listening all the node for traffic
+
+>> It is enabled by default
+
+
+##########
+Stacks
+    Compose files for production swarm
+    It combines services, volumes and overlay networks
+
+>> docker stack deploy -c <compose_file> <stack_name>
+    It import compose file and run the commands that we put in it
+
+>> docker stack ls
+>> docker stack ps <stack_name>
+>> docker stack services <stack_name>
+>> docker network ls
+
+##########
+Secrets
+    Secure way for storing secrets in swarm
+    Secrets like username, password, ssh key, API keys, certificates
+
+>> docker secret create <secret_name> <secret_file_name>
+    Reading secrets from file
+
+>> echo "mypassword" | docker secret create <secret_name> -
+    Reading secrets from standard input
+
+>> docker secret ls
+
+
+>> docker service create --name msql --secret ....................

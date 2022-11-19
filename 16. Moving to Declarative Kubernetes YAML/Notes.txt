@@ -1,0 +1,17 @@
+Create/Update resources in a file
+> kubectl apply -f filename.yml
+
+Create/Update whole directory of yaml
+> kubectl apply -f myyamml/
+
+Create/Update from a URL
+> kubectl apply -f https://bret.run/pod.yml
+
+>> Kubernets Configuration YAML
+    Each file has one or more manifests
+    Each manifest describes an API object (deployment, job, secret)
+    Each manifest needs four parts (root key:values in the file)
+        apiVersion:
+        kind:
+        metadata:
+        spec:

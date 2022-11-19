@@ -1,0 +1,132 @@
+Kubernetes:
+    Container orchestrator
+    Which run on top of a container run time
+
+Kubectl:
+    CLI to configure kubernetes and manage apps
+
+Node:
+    Single server in the kubernetes cluster
+
+Kubelet:
+    Kubernetes agent running on the the nodes to talk to the kubernetes master
+
+Contrl Plane:
+    Also called as master, which is incharge of the cluster
+    Or
+    Set of managers that manage the cluster
+
+Master:
+    Will run multiple containers
+    Each of it will contain
+    etcd:
+        Distributed storage system for key, values(To store configuration data)
+    API:
+        Way to talk to cluster
+    Scheduler:
+        Contral how and where your containers are placed on the nodes in objects called pods.
+    Control manager:
+        Looks at state of whole cluster and everything runing in it using APIs
+    core DNS: to contol DNS
+
+
+Nodes:
+    A Pod always runs on a Node.
+    A Node is a worker machine in Kubernetes and may be either a
+        virtual or a physical machine, depending on the cluster.
+    A Node can have multiple pods, and the Kubernetes master automatically 
+    handles scheduling the pods across the Nodes in the cluster.
+
+    Kubelet:
+        Running agent to talk to the kubernetes master
+
+    Kube-proxy:
+        To control networking
+
+>> https://labs.play-with-k8s.com/
+
+>> https://www.katacoda.com/courses/kubernetes
+
+
+Pod:
+    One or more containers running on one Node
+    Basic unit of deployment
+    Containers are always insde pod
+
+
+Controller:
+    For creating/updating pods and other objects
+
+Service:
+    Netwrok endpoint to connect to a pod
+
+Namespace:
+    Filtered group of objects in cluster
+
+
+>> kubectl version
+
+# Two ways to deploy pods(command line, YAML)
+
+>> kubectl run <name_of_deployment> --image <image_name>
+    It is using deployment controller
+    Deployment controller creates a replica set controller
+    Replica set controller then creates the pod
+    
+    example: kubectl run my-nginx --image nginx
+
+>> kubectl get pods
+    Return list of pods
+
+NAME                        READY   STATUS    RESTARTS   AGE
+my-nginx-669bb4594c-m2486   1/1     Running   0          34s
+
+>> kubectl get all
+    Returns all objects
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/my-nginx-669bb4594c-m2486   1/1     Running   0          87s
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.152.183.1   <none>        443/TCP   7h21m
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/my-nginx   1/1     1            1           88s
+
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/my-nginx-669bb4594c   1         1         1       88s
+
+>> kubectl delete deployment my-nginx 
+    To delete a deployment
+
+# Scaling replica sets
+
+>> kubectl run my-apache --image httpd
+
+>> kubectl scale deploy/my-apache --replicas 2
+OR
+>> kubectl scale deployment my-apache --replicas 2
+
+# Inspecting deployment objects
+
+>>  kubectl logs deployments/<deployment_name>
+    Inspect logs of a container
+    >> kubectl logs deployments/my-apache
+        Found 2 pods, using pod/my-apache-5d589d69c7-qj4jz
+        AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.1.22.17. Set the 'ServerName' directive globally to suppress this message
+        AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.1.22.17. Set the 'ServerName' directive globally to suppress this message
+        [Sun Dec 08 18:21:58.540884 2019] [mpm_event:notice] [pid 1:tid 140440391693440] AH00489: Apache/2.4.41 (Unix) configured -- resuming normal operations
+        [Sun Dec 08 18:21:58.541252 2019] [core:notice] [pid 1:tid 140440391693440] AH00094: Command line: 'httpd -D FOREGROUND'
+
+
+>> kubectl logs -l run=my-apache
+    -l ==> label
+    To get logs from multiple pods
+
+
+>> kubectl describe pod/<pod_name>
+    To get details of specific pod
+
+>>  Run in two terminals
+    >> kubectl get pods -w
+    >> kubectl delete pod/<pod_name>
+    Deleting the pod will recreate it by the deploymnet

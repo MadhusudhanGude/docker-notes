@@ -1,0 +1,131 @@
+Installation:
+    https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-using-the-repository
+
+>> docker version
+    Returns version of client and server(engine)
+    Ideally, both of them have to be same, but not necessary always
+    
+>> docker info
+    Shows configuration details in depth
+
+>> docker <command> <sub-command>
+    Way to run docker commands
+
+>> Image is the application what we want to run
+>> Container is an instance of that image running as a process
+>> Many containers can be run with the same image
+
+>> docker container run --publish 80:80 nginx
+>> docker container run --publish 80:80 --detach nginx
+    runs the container with nginx image in the background
+>> docker container run --publish 80:80 --detach --name <container_name> <image_name>
+    giving a unique name to the container
+>> docker container run --publish <HOST_PORT>:<CONTAINER_PORT> --detach --name <container_name> <image_name>
+    Forward the host port into the port of the container
+    
+>> docker container ls
+>> docker container stop <container_id>
+>> docker container ls -a
+    -a, --all  Show all containers (default shows just running)
+
+>> docker container logs <container_name>
+    Shows logs of a specific container
+
+>> docker container top <container_name>
+    Display the running processes of a container
+
+>> docker container stats <container_name>
+    Display a live stream of container(s) resource usage statistics
+
+>>  docker container inspect
+        or
+    docker container inspect <container_name>
+
+    Display all the data of a container when it was started
+
+>>  docker container rm <container_id1> <container_id2>
+    You cannot remove a running container 
+    Use -f option to do so
+
+
+>> docker container run -p 3306:3306 -d --name db -e MY_SQL_PASSWORD=yes nginx
+>> docker image ls
+    -a, --all             Show all images (default hides intermediate images)
+
+
+>> docker container run -it --name <container_name> <image_name> bash
+    To start a container, in interactive mode
+    This command will work when a new container is created
+
+    docker container run -ai --name <container_name> <image_name> bash
+    This command has to be used for a container which is already created but stopped
+
+>> To see the shell in running container which is already running
+    docker container exec --help
+    docker container exec -it <container_name> bash
+        example: docker container exec -it mysql bash
+    Exiting from the shell of a running container will not stop the container
+
+
+>> docker container port webhost
+	To know which ports are forwarded from the host to a container
+
+>> docker container inspect --format '{{ .NetworkSettings.IPAddress}}' <container_name>
+	To know the Docker container IP
+
+>> docker network ls
+    List of networks
+    
+>> docker network inspect <network_name>
+    To know the details of the containers connected to a specific network
+    example: docker network inspect bridge
+
+>> docker network host
+    Special network which skips virutal environment of dockers and directly conectes to host network, this will sacrifice the security 
+
+>> docker network create <network_name> 
+    Creating a new network
+
+>> docker container run --publish <HOST_PORT>:<CONTAINER_PORT> --network <network_name> --detach --name <container_name> <image_name>
+    Attaching a container to specific network
+
+>> docker network connect <network_id> <container_id>
+    To connect an existing container to an existing network
+
+>> docker network disconnect <network_id> <container_id>
+    To disconnect an existing container from an existing network
+
+14. DNS
+    It is important that we have good DNS because you can't rely on IP addresses inside containers
+    since things are so dynamic. We'll look at the differences between default and custom networks in
+    Docker uses the container names as the equivalent of a host name for containers talking to each other.
+
+>> docker container exec -it <first_container_in_the_network> ping <second_container_in_the_same_network>
+    example: docker container exec -it my_nginx ping new_nginx
+                or
+            docker container exec -it new_nginx ping my_nginx
+
+    You can add two containers to the same network and ping one container from another just by using the first container name
+
+>> --rm option while container run option wil cleanup after the exit from 
+
+>> DNS round robin testing
+    We can have multiple containers on a created network repsond to the same DNS address
+
+    >> docker network create <network_name>
+        docker network create dude
+    >> docker container run -d --net <network_name> --net-alias <dns_alias_name> <image_name>:<image_version> --name <container_name>
+        docker container run --d --net dude --net-alias search elasticsearch:2 --name container_1
+    >> docker container run -d --net dude --net-alias search elasticsearch:2 --name container_2
+    >> docker container ls
+    >> docker container run --rm --net <network_name> <image_name> <command_on_shell>
+        docker container run --rm --net dude alpine nslookup search
+    >> docker container run --rm --net <network_name> <image_name> <command_on_shell>
+        docker container run --rm --net dude centos curl -s search:9200
+        Give one container id
+    >> docker container run --rm --net dude centos curl -s search:9200
+        Give another container id
+
+
+
+

@@ -1,0 +1,45 @@
+Persistent data:
+    By design, Docker containers do not store persistent data.
+    Any data written to a container's writable layer will no longer be available once the container stops running.
+    Also, getting data written to a container back out of it for another process can be difficult.
+    To solve the issue of persisting data from a container, Docker has two options.
+
+Bind mounts: 
+    A bind mount is a file or folder stored anywhere on the container host filesystem, 
+        mounted into a running container.
+    The main difference a bind mount has from a volume is that since it can exist anywhere
+        on the host filesystem, processes outside of Docker can also modify it.
+
+Volumes: 
+    Volumes are the preferred way to store persistent data Docker containers create or use.
+    The host filesystem also stores volumes, similar to bind mounts.
+    However, Docker completely manages them and stores them under C:\ProgramData\docker\volumes 
+        by default.
+
+
+>> docker volume ls
+>> docker container run -p 3300:3306 -d --name db1 --network my_net -e MYSQL_RANDOM_ROOT_PASSWORD=yes mysql
+    By default mysql image will have a dedicated volume attached to it to store the db persistantly
+
+>> docker volume ls
+    Now this command will show more docker volumes
+
+>>  docker container inspect <container_name>
+    This will show the "Mounts" for a particular container
+
+>> docker volume inspect <volume_name>
+    Display detailed information on one or more volumes
+    This will not display the container information, from which this volume is actually created
+
+>> docker container rm <container_name>
+    Even after the container is deleted, the volume will outlive the executable
+
+>> docker container run -p 3300:3306 -d --name db1 --network my_net -e MYSQL_RANDOM_ROOT_PASSWORD=yes mysql -v mysql-db:/var/lib.mysql
+    This will create a named volume
+
+>> docker volume create
+    create docker volume
+
+
+# Bind Mounts
+>> docker container run -d --name nginx -p 80:80 -v $(pwd):/usr/share/nginx/html nginx

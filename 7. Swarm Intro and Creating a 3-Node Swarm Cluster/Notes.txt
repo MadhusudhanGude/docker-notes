@@ -1,0 +1,87 @@
+Swarm is container orchestration tool
+
+>> docker info
+    To check if swarm is enable or not
+
+>> docker swarm init
+    To enable swarm
+
+>> docker node ls
+    List nodes in the swarm
+
+>>  docker service --help
+    service in a swarm replaces normal docker run
+
+>> docker service create alpine ping 8.8.8.8
+    Create a new service with a node(1 by default)
+
+>> docker service ls
+    Running services
+    REPLICAS ==> 1/1 ==>> Hhow many are running/How many you have specified
+
+>> docker service ps <service_id>
+    List the tasks of one or more services
+
+>>  docker container ls
+
+>> docker service update <service_id> --replicas 3
+    Scaling a service
+
+>> docker service ls
+
+>> docker service ps <service_id>
+
+>> docker container ls
+
+>> docker container -f rm <container_id>
+    When you remove a container which is created by swarm service
+    It will launch a new container by recreating it
+
+>> docker service ps <service_id>
+
+>> docker service rm <service_id>
+    Deleting the service, this will not delete the containers launched by this service
+
+
+# 5. Creating a 3-Node Swarm Cluster
+
+>> https://labs.play-with-docker.com/
+    Visit this website three servers which are in the same network
+
+>> docker swarm init --advertise-addr <Public_IP_adress_pf_server>
+    Run this command from node 1 and make it as leader
+    It return command for the other nodes to join
+
+>> docker swarm join --token SWMTKN-1-1045ob4xykh9gnjhnlhclej7g1s7hw81dfnbei49senpqjpvth-ainv2azu7tkphn4klr2uw35xw 192.168.0.13:2377
+    Run this kind of sample command in other two nodes(servers)
+    To make new node join a swarm as a worker.
+
+>> docker node ls
+    Run this command first server(Which is the master node)
+
+>> docker node update --role manager <node2>
+    To make node2 also as a manager since worker cannot run the swarm relates commands
+    
+>> docker swarm join-token manager
+    Generate a token which can copied on existing nodes to make them as a manger
+
+>> docker node ls
+    ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS      ENGINE VERSION
+    44cgy6kb6edaz240ne0atpi3w *   node1               Ready               Active              Leader              19.03.4
+    xn8qq9wiodns8t15zxy7g3bfn     node2               Ready               Active                                  19.03.4
+    xqbs2272erfnzdnggbda80mui     node3               Ready               Active                                  19.03.4
+
+
+
+>> docker service create --replicas 3 alpine ping 8.8.8.8
+>> docker service ls
+>> docker service ps <service_name>
+    ID                  NAME                IMAGE               NODE                DESIRED STATE       CURRENT STATE            ERROR               PORTS
+    5fdqkos2f0db        modest_turing.1     alpine:latest       node3               Running             Running 43 seconds ago                       
+    docj4cq3fj6b        modest_turing.2     alpine:latest       node1               Running             Running 43 seconds ago                       
+    j95mblj4cow5        modest_turing.3     alpine:latest       node2               Running             Running 43 seconds ago  
+
+ >> docker service update --help
+
+
+
